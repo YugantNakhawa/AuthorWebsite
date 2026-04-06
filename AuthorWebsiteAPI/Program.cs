@@ -40,7 +40,7 @@ builder.Services.AddAuthentication(options =>
         )
     };
 
-    // 🔥 CRITICAL: Read JWT from HttpOnly Cookie
+    // 🔥 Read JWT from cookie
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -56,29 +56,38 @@ builder.Services.AddAuthentication(options =>
 });
 
 // =========================
-// CORS (REQUIRED FOR COOKIES)
+// CORS (LOCAL + NETLIFY)
 // =========================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // ⚠️ change in production
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // 🔥 REQUIRED for cookies
+        policy.WithOrigins(
+                "http://localhost:5173",                  // local dev
+                "https://your-app.netlify.app"           // 🔥 replace with your Netlify URL
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
-
-builder.Services.AddScoped<EmailService>();
 
 // =========================
 // SERVICES
 // =========================
+builder.Services.AddScoped<EmailService>();
+
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// =========================
+// 🔥 PORT FIX FOR RENDER (CRITICAL)
+// =========================
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 // =========================
 // PIPELINE
@@ -91,6 +100,7 @@ if (app.Environment.IsDevelopment())
 // ⚠️ Order matters
 app.UseCors("AllowFrontend");
 
+// ⚠️ Keep HTTPS locally, but Render already handles HTTPS
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
