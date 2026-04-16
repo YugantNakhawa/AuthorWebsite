@@ -79,7 +79,7 @@ builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
-builder.Services.AddOpenApi();
+// builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
