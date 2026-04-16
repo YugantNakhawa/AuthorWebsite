@@ -64,7 +64,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:5173",                  // local dev
-                "https://your-app.netlify.app"           // 🔥 replace with your Netlify URL
+                "https://author-website-delta.vercel.app/"           // 🔥 replace with your Netlify URL
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
